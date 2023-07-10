@@ -46,7 +46,8 @@
           @click="makeTransaction"
         >
           <transition v-bind="TransitionPrimaryButtonText" mode="out-in">
-            <span v-if="status === 'waiting-for-signature'">Waiting for confirmation</span>
+            <span v-if="status === 'processing'">Processing...</span>
+            <span v-else-if="status === 'waiting-for-signature'">Waiting for confirmation</span>
             <span v-else>Approve allowance</span>
           </transition>
         </CommonButton>
@@ -151,7 +152,7 @@ const props = defineProps({
     type: Object as PropType<ConfirmationModalTransaction>,
   },
   getAllowance: {
-    type: Function as PropType<() => Promise<void>>,
+    type: Function as PropType<() => Promise<BigNumberish | undefined>>,
     required: true,
   },
   setAllowance: {
@@ -172,7 +173,9 @@ const { account } = storeToRefs(useOnboardStore());
 const { destinations } = storeToRefs(useDestinationsStore());
 const { l1BlockExplorerUrl } = storeToRefs(useNetworkStore());
 
-const status = ref<"not-started" | "waiting-for-signature" | "committing" | "processing" | "done">("not-started");
+const status = ref<"not-started" | "processing" | "waiting-for-signature" | "committing" | "processing" | "done">(
+  "not-started"
+);
 const transactionHash = ref<Hash | undefined>();
 const transactionCommitted = computed(() => status.value === "done");
 const transactionStarted = computed(() => status.value === "committing" || transactionCommitted.value);
@@ -180,6 +183,16 @@ const transactionStarted = computed(() => status.value === "committing" || trans
 const { execute: makeTransaction, error } = usePromise(
   async () => {
     try {
+      if (!props.transaction) return;
+
+      status.value = "processing";
+      const allowance = await props.getAllowance();
+      if (!allowance) throw new Error("Failed to fetch allowance");
+      if (allowance.toString() === props.transaction.amount.toString()) {
+        status.value = "done";
+        return;
+      }
+
       status.value = "waiting-for-signature";
       transactionHash.value = await props.setAllowance();
 
@@ -187,6 +200,7 @@ const { execute: makeTransaction, error } = usePromise(
 
       const publicClient = getPublicClient();
       const receipt = await publicClient.waitForTransactionReceipt({
+        confirmations: 3,
         hash: transactionHash.value,
         onReplaced: (replacement) => {
           transactionHash.value = replacement.transaction.hash;
@@ -196,7 +210,7 @@ const { execute: makeTransaction, error } = usePromise(
         throw new Error("Transaction failed");
       }
 
-      await Promise.all([props.fetchBalance(), props.getAllowance()]);
+      await Promise.all([props.fetchBalance().catch(() => undefined), props.getAllowance().catch(() => undefined)]);
       status.value = "done";
     } catch (err) {
       status.value = "not-started";

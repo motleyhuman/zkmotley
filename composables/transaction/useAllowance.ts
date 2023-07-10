@@ -59,7 +59,7 @@ export default (
 
   const requestAllowance = async () => {
     if (accountAddress.value && tokenAddress.value && tokenAddress.value !== ETH_L1_ADDRESS) {
-      await getAllowance();
+      return await getAllowance();
     } else {
       reset();
     }
