@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { expect } from "@playwright/test";
+import { setTimeout } from "timers/promises";
 
 import { BasePage } from "./base.page";
-import { MetamaskPage } from "./metamask.page";
+import { currentWalletAddress, MetamaskPage } from "./metamask.page";
 import { Routes } from "../data/data";
 import { Helper } from "../helpers/helper";
 import { config } from "../support/config";
@@ -11,6 +12,7 @@ import type { ICustomWorld } from "../support/custom-world";
 
 let metamaskPage: any;
 let result: any;
+let selector: string;
 
 export class MainPage extends BasePage {
   constructor(world: ICustomWorld) {
@@ -77,6 +79,29 @@ export class MainPage extends BasePage {
     return `${this.byTestId}network-switcher`;
   }
 
+  // selectors for revoke
+  get networkSelectorsListForRevoke() {
+    return "//*[@id='react-select-address-chain-select-live-region']";
+  }
+
+  async revokeButton(value: string) {
+    return `//button[contains(text(), '${value}')]`;
+  }
+
+  async commonButtonByItsName(value: string) {
+    return `//button[contains(., '${value}')]`;
+  }
+
+  async checkNetworkForRevoke(network: string) {
+    const selector = `${this.networkSelectorsListForRevoke}/..//img[@alt='${network}']`;
+    result = await this.world.page?.locator(selector).first().isVisible();
+    return result;
+  }
+
+  async buttonOfModalCard(buttonText: string) {
+    return `${this.modalCard}//button[contains(., '${buttonText}')]`;
+  }
+
   async selectTransaction(transactionType: string) {
     try {
       let route: string;
@@ -107,10 +132,9 @@ export class MainPage extends BasePage {
     await this.fill(this.amountInputField, amount);
   }
 
-  async makeTransaction(actionType: string, transactionType: string) {
+  async makeTransaction(transactionType: string) {
     metamaskPage = await new MetamaskPage(this.world);
     result = await this.getTransactionSelector(transactionType);
-
     await metamaskPage.operateTransaction(result);
   }
 
@@ -210,5 +234,44 @@ export class MainPage extends BasePage {
       }
     }
     return result;
+  }
+
+  async revokeAllowance() {
+    metamaskPage = await new MetamaskPage(this.world);
+    const networkChainId = "?chainId=5"; // Goerli
+    const revokeGoerliUrl = "https://revoke.cash/address/" + currentWalletAddress + networkChainId;
+    const networkForRevokeIsSelected = await this.checkNetworkForRevoke("Goerli");
+    if (!networkForRevokeIsSelected) {
+      await this.goTo(revokeGoerliUrl);
+      console.log(revokeGoerliUrl);
+    }
+
+    await setTimeout(6 * 1000);
+    selector = await this.revokeButton("Switch Network");
+    const switchNetworkIsVisible = await this.world.page?.locator(selector).isVisible();
+    if (switchNetworkIsVisible) {
+      const popUpContext = await metamaskPage.catchPopUpByClick(selector);
+      await popUpContext?.setViewportSize(config.popUpWindowSize);
+      await popUpContext?.click(metamaskPage.switchNetworkButton);
+    }
+
+    await setTimeout(2 * 1000);
+    selector = await this.revokeButton("Revoke");
+    const revokeButtonIsVisible = await this.world.page?.locator(selector).isVisible();
+    if (revokeButtonIsVisible) {
+      const popUpContext = await metamaskPage.catchPopUpByClick(selector);
+      await popUpContext?.setViewportSize(config.popUpWindowSize);
+      await popUpContext?.click(metamaskPage.confirmTransaction);
+      await this.revokeAllowance();
+    }
+
+    selector = await this.revokeButton("Revoking");
+    let revokingButtonIsVisible = await this.world.page?.locator(selector).isVisible();
+    if (revokingButtonIsVisible) {
+      do {
+        await setTimeout(3 * 1000);
+        revokingButtonIsVisible = await this.world.page?.locator(selector).isVisible();
+      } while (revokingButtonIsVisible);
+    }
   }
 }

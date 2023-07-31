@@ -20,6 +20,10 @@ export class BasePage {
     return "data-testid=";
   }
 
+  get currentPageURL() {
+    return this.world.page;
+  }
+
   async getInputSelector(selector: string) {
     return `//input[@${selector}]`;
   }
@@ -62,6 +66,12 @@ export class BasePage {
     selector = `//*[contains(text(), '${text}')]`;
     await this.world.page?.waitForSelector(selector);
     await this.world.page?.locator(selector).first().click(config.increasedTimeout);
+  }
+
+  async clickByMenuWalletButton() {
+    selector = "//button/div[contains(text(), '0x')]";
+    await this.world.page?.waitForSelector(selector);
+    await this.world.page?.locator(selector).first().click(config.defaultTimeout);
   }
 
   async pressButton(buttonName: string) {

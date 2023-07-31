@@ -2,6 +2,7 @@
 import { setTimeout } from "timers/promises";
 
 import { BasePage } from "./base.page";
+import { MainPage } from "./main.page";
 import { Extension } from "../data/data";
 import { depositTag, Helper } from "../helpers/helper";
 import { config, wallet } from "../support/config";
@@ -12,8 +13,10 @@ let page: any;
 let element: any;
 let metamaskHomeUrl: string;
 let metamaskWelcomeUrl: string;
+export let currentWalletAddress: string;
 let testId: any;
 let logoutTrigger: any = undefined;
+let selector: string;
 
 export class MetamaskPage extends BasePage {
   constructor(world: ICustomWorld) {
@@ -21,7 +24,7 @@ export class MetamaskPage extends BasePage {
   }
 
   get continueBtn() {
-    return "//*[@class='transaction-footer-row']//button";
+    return "//*[@class='transaction-footer-row']//button"; // Not related to metamask
   }
 
   get aggressiveFee() {
@@ -46,8 +49,20 @@ export class MetamaskPage extends BasePage {
     return "//*[@class='popover-container']//button";
   }
 
+  get nextButton() {
+    return "//button[contains(text(), 'Next')]";
+  }
+
+  get switchNetworkButton() {
+    return "//button[contains(text(), 'Switch network')]";
+  }
+
   get metamaskResetButton() {
     return "//*[@data-testid='advanced-setting-reset-account']//button[1]"; // //button[contains(text(),'Reset')]|
+  }
+
+  get metamaskUseDefaultButton() {
+    return "//button[text()='Use default']";
   }
 
   get extensionDetailsBtn() {
@@ -59,7 +74,7 @@ export class MetamaskPage extends BasePage {
   }
 
   get confirmTransaction() {
-    return "//*[@data-testid='page-container-footer-next']";
+    return `//*[@data-testid='page-container-footer-next'] | //button[contains(text(), 'Confirm')]`;
   }
 
   get declineBtn() {
@@ -104,6 +119,10 @@ export class MetamaskPage extends BasePage {
 
   get metamaskFormField() {
     return "@class='form-field__input'";
+  }
+
+  get copyWalletAddress() {
+    return "//button[@class='selected-account__clickable']";
   }
 
   async metamaskValue(value: string) {
@@ -155,6 +174,17 @@ export class MetamaskPage extends BasePage {
     }
   }
 
+  async getCurrentWalletAddress() {
+    await this.getMetamaskExtensionUrl();
+    await page.goto(metamaskWelcomeUrl);
+    await page.reload();
+    //await page.bringToFront();
+    await page.locator("//button[@data-testid='popover-close']").click();
+    await page.locator(this.copyWalletAddress).click();
+    const address = await page.evaluate("navigator.clipboard.readText()");
+    return address.toString();
+  }
+
   async authorizeInMetamaskExtension(secretPhrase: Array<string>, password: string) {
     const helper = await new Helper(this.world);
     const wallet_password = await helper.decrypt(wallet.password);
@@ -175,26 +205,51 @@ export class MetamaskPage extends BasePage {
       }
     }
     logoutTrigger = false;
+    currentWalletAddress = await this.getCurrentWalletAddress();
+    console.log(currentWalletAddress);
+  }
+
+  // Not related to metamask --> should be replaced to the MainPage()
+  async callTransactionInterface() {
+    const mainPage = await new MainPage(this.world);
+    //change network
+    selector = await mainPage.commonButtonByItsName("Change wallet network");
+    const networkChangeRequest = await this.world.page?.locator(selector).isVisible();
+    if (networkChangeRequest) {
+      //console.log("networkChangeRequest")
+      await this.switchNetwork();
+    }
+    await setTimeout(5 * 1000);
+    selector = await mainPage.commonButtonByItsName("Continue");
+    const continueBtn = await this.world.page?.locator(selector).isVisible();
+    if (continueBtn) {
+      //console.log("continueBtn")
+      await this.click(selector);
+    }
   }
 
   async operateTransaction(triggeredElement: string) {
-    //change network
-    try {
-      await this.switchNetwork();
-    } finally {
-      await setTimeout(2.5 * 1000);
-      await this.click(this.continueBtn);
-      // const confirmBtnSelector = "//*[@class='alert-body']//button";
-      // const confirmBtn: any = await this.world.page?.locator(confirmBtnSelector);
-      // if (await confirmBtn.isEnabled()) {
-      //   console.log("spotted");
-      //   await this.click(confirmBtn);
-      // }
-      const popUpContext = await this.catchPopUpByClick(`//span[contains(text(),'${triggeredElement}')]`);
-      await setTimeout(2.5 * 1000);
+    const mainPage = await new MainPage(this.world);
+    const popUpContext = await this.catchPopUpByClick(`//span[contains(text(),'${triggeredElement}')]`);
+    await setTimeout(2.5 * 1000);
+    await popUpContext?.setViewportSize(config.popUpWindowSize);
 
-      await popUpContext?.setViewportSize(config.popUpWindowSize);
-      await popUpContext?.click(this.confirmTransaction);
+    // will be required for metamask > v10.14.1
+    // if (triggeredElement === "Approve allowance") {
+    //   await popUpContext?.click(this.metamaskUseDefaultButton);
+    // }
+    await popUpContext?.click(this.confirmTransaction);
+
+    if (triggeredElement === "Approve allowance") {
+      selector = "//div[@class='modal-card']//*[contains(text(), 'Allowance approved')]";
+      let allowanceFinalized = await this.world.page?.locator(selector).isVisible();
+      if (!allowanceFinalized) {
+        do {
+          await setTimeout(5 * 1000);
+          allowanceFinalized = await this.world.page?.locator(selector).isVisible();
+        } while (!allowanceFinalized);
+      }
+      await this.click(await mainPage.buttonOfModalCard("Continue"));
     }
   }
 
@@ -204,9 +259,8 @@ export class MetamaskPage extends BasePage {
     const [popUp] = await Promise.all([
       this.world.context?.waitForEvent("page"),
       await helper.checkElementVisible(element),
-      //await helper.checkElementClickable(element),
       await this.world.page?.locator(element).first().click(),
-      await setTimeout(10 * 1000),
+      await setTimeout(2 * 1000),
       await this.isFeeAlert(helper, element),
     ]);
 

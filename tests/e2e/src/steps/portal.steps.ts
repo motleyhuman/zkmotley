@@ -32,6 +32,34 @@ Given("I go to page {string}", config.stepTimeout, async function (this: ICustom
   await this.page?.goto(config.BASE_URL + route);
 });
 
+Given("I go to the main page", config.stepTimeout, async function (this: ICustomWorld) {
+  await this.page?.waitForLoadState("load", { timeout: 3 * 1000 });
+  await this.page?.goto(config.BASE_URL + config.DAPP_NETWORK);
+});
+
+Given("I reset allowance", config.stepTimeout, async function (this: ICustomWorld) {
+  mainPage = new MainPage(this);
+  basePage = new BasePage(this);
+  metamaskPage = new MetamaskPage(this);
+
+  const revokeUrl = "https://revoke.cash/";
+
+  await basePage.goTo(revokeUrl);
+  // login
+  await basePage.clickByText("Connect Wallet");
+  const popUpContext = await metamaskPage.catchPopUpByClick(`//button[contains(text(),'MetaMask')]`);
+  await popUpContext?.setViewportSize(config.popUpWindowSize);
+  await popUpContext?.click(metamaskPage.nextButton);
+  await popUpContext?.click(metamaskPage.confirmTransaction);
+
+  // operate
+  await mainPage.revokeAllowance();
+
+  // logout
+  await basePage.clickByMenuWalletButton();
+  await basePage.clickByText("Disconnect");
+});
+
 When("I click by text {string}", config.stepTimeout, async function (this: ICustomWorld, text: string) {
   basePage = new BasePage(this);
   await basePage.clickByText(text);
@@ -90,9 +118,14 @@ When(
   config.stepTimeout,
   async function (this: ICustomWorld, actionType: string, transactionBtn: string) {
     mainPage = new MainPage(this);
-    await mainPage.makeTransaction(actionType, transactionBtn);
+    await mainPage.makeTransaction(transactionBtn);
   }
 );
+
+When("I call the transaction interface", config.stepTimeout, async function (this: ICustomWorld) {
+  metamaskPage = new MetamaskPage(this);
+  await metamaskPage.callTransactionInterface();
+});
 
 Then(
   "Element with {string} {string} should be {string}",
