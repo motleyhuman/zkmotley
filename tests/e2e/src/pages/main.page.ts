@@ -80,13 +80,13 @@ export class MainPage extends BasePage {
   get networkSwitcher() {
     return `${this.byTestId}network-switcher`;
   }
-
+  
   async getButton(buttonName: string) {
     return `//*[@type='button' and contains(., '${buttonName}')] | //button[text()[contains(string(), '${buttonName}')]]`;
   }
 
-  get confirmFeeChange() {
-    return "//*[@class='alert-body']//*[contains(string(), 'Confirm')]";
+  get confirmFeeChangeButton() {
+    return "//button[text()='Confirm']";
   }
 
   async selectTransaction(transactionType: string) {
