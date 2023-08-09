@@ -8,10 +8,12 @@ export enum Extension {
 }
 
 export enum NetworkSwitcher {
-  zkSyncEraGoerli = "/?network=goerli",
-  zkSyncEraMainnet = "/?network=mainnet",
+  zkSyncEraGoerli = "/?network=era-goerli",
+  zkSyncEraMainnet = "/?network=era-mainnet",
 }
 
 export enum Routes {
   withdraw = "/transaction/zksync/era/withdraw",
+  deposit = "/transaction/zksync/era/deposit",
+  txBlockExplorer = "https://goerli.explorer.zksync.io/tx",
 }

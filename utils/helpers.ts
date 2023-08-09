@@ -1,11 +1,10 @@
 import { BigNumber } from "ethers";
 
-import type { L2Network } from "@/store/network";
-import type { Version } from "@/store/preferences";
+import type { L1Network, L2Network } from "@/data/networks";
+import type { Version } from "@/store/network";
 import type { TokenAmount } from "@/types";
 import type { BigNumberish } from "ethers";
 
-import { eraNetworks, zkSyncLiteNetworks } from "@/store/network";
 import { parseTokenAmount } from "@/utils/formatters";
 
 export function generateAvatarColors(address: string) {
@@ -37,16 +36,6 @@ export function calculateFee(gasLimit: BigNumberish, gasPrice: BigNumberish) {
   return BigNumber.from(gasLimit).mul(gasPrice);
 }
 
-export const getVersionByNetwork = (network: L2Network): Version => {
-  if (eraNetworks.some((e) => e.key === network.key)) {
-    return "era";
-  } else if (zkSyncLiteNetworks.some((e) => e.key === network.key)) {
-    return "lite";
-  } else {
-    throw new Error(`Unknown network: ${network.key}`);
-  }
-};
-
 export const getNetworkUrl = (network: L2Network, routePath: string) => {
   const url = new URL(routePath, window.location.origin);
   url.searchParams.set("network", network.key);
@@ -67,6 +56,10 @@ export const calculateTotalTokensPrice = (tokens: TokenAmount[]) => {
     if (typeof price !== "number") return acc;
     return acc + parseFloat(parseTokenAmount(amount, decimals)) * price;
   }, 0);
+};
+
+export const findNetworkWithSameL1 = (l1Network: L1Network, networks: L2Network[]) => {
+  return networks.find((network) => l1Network.network === network.l1Network?.network);
 };
 
 interface RetryOptions {

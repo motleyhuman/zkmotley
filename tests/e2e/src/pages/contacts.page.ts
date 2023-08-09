@@ -1,4 +1,5 @@
 import { BasePage } from "./base.page";
+import { Helper } from "../helpers/helper";
 
 import type { ICustomWorld } from "../support/custom-world";
 let selector: string;
@@ -10,6 +11,10 @@ export class ContactsPage extends BasePage {
 
   get sendBtnModal() {
     return "//*[@class='modal-card']//a[contains(@href, '/transaction/send?address=')]";
+  }
+
+  get contactsPageContent() {
+    return "//*[@class='app-layout-main']";
   }
 
   get editBtnModal() {
@@ -24,6 +29,10 @@ export class ContactsPage extends BasePage {
     return "//*[@class='modal-card']";
   }
 
+  get addContactButton() {
+    return "//*[@class='line-button-with-img-body']";
+  }
+
   get headerTextModal() {
     return `${this.modalCard}//div[text()='Add contact']`;
   }
@@ -36,13 +45,27 @@ export class ContactsPage extends BasePage {
     return `${this.modalCard}//div[text()='${address}']`;
   }
 
+  async contactItem(contactName: string) {
+    return `${this.contactsPageContent}//div[text()='${contactName}']`;
+  }
+
   async fillContactFields(inputFieldName: string, text: string) {
-    if (inputFieldName == "Name of the contact" || inputFieldName == "Ethereum address") {
+    const helper = new Helper(this.world);
+    if (
+      inputFieldName == "Name of the contact" ||
+      inputFieldName == "Ethereum address" ||
+      inputFieldName == "Address or ENS or contact name" ||
+      inputFieldName == "Symbol or address"
+    ) {
       selector = `//*[@placeholder="${inputFieldName}"]`;
+      if (text === "clipboard") {
+        const result = await helper.getClipboardValue();
+        await this.fill(selector, result);
+      }
+      await this.world.page?.fill(selector, text);
     } else {
       return console.error("An incorrect value of the input field has been provided");
     }
-    await this.world.page?.fill(selector, text);
   }
 
   async pressSendBtnModal() {
@@ -51,6 +74,20 @@ export class ContactsPage extends BasePage {
 
   async pressEditBtnModal() {
     await this.click(this.editBtnModal);
+  }
+
+  async pressRemoveBtnModal(removeButtonText: string) {
+    await this.clickByText(removeButtonText);
+  }
+
+  async getContactItem(contactName: string) {
+    const result = await this.contactItem(contactName);
+    const selector = await this.world.page?.locator(result);
+    return selector;
+  }
+
+  async clickAddButton() {
+    await this.click(this.addContactButton);
   }
 
   async clickOnSavedContact() {

@@ -21,8 +21,16 @@ export class MainPage extends BasePage {
     return "//*[@class='amount-input-field-container']//input";
   }
 
+  get accountDropdown() {
+    return `${this.byTestId}account-dropdown`;
+  }
+
   get modalCard() {
     return "//*[@class='modal-card']";
+  }
+
+  get menuElement() {
+    return "//*[@class='menu-options']";
   }
 
   get avatarModalCard() {
@@ -31,6 +39,10 @@ export class MainPage extends BasePage {
 
   get totalIntBalance() {
     return ".total-int";
+  }
+
+  get externalLinkArrow() {
+    return "//*[@class='line-button-with-img-icon']";
   }
 
   get totalDecBalance() {
@@ -57,13 +69,35 @@ export class MainPage extends BasePage {
     return `${this.byTestId}fee-amount`;
   }
 
+  get balanceValue() {
+    return "//span[@class='break-all']";
+  }
+
+  get closeBtnModalCard() {
+    return "//*[@data-testid='close-button']";
+  }
+
+  get networkSwitcher() {
+    return `${this.byTestId}network-switcher`;
+  }
+
+  async getButton(buttonName: string) {
+    return `//*[@type='button' and contains(., '${buttonName}')] | //button[text()[contains(string(), '${buttonName}')]]`;
+  }
+
   async selectTransaction(transactionType: string) {
     try {
       let route: string;
       if (transactionType === "Withdraw") {
         route = Routes.withdraw;
-        await this.world.page?.goto(config.BASE_URL + route + config.DAPP_NETWORK);
+      } else if (transactionType === "Deposit") {
+        route = Routes.deposit;
+      } else {
+        throw new Error("Unknown transaction type");
       }
+
+      await this.world.page?.goto(config.BASE_URL + route + config.DAPP_NETWORK);
+      return route;
     } catch (e) {
       console.error(e);
     }
@@ -134,5 +168,74 @@ export class MainPage extends BasePage {
   async checkModalCardElement(xpath: string, checkType: string) {
     const selector = this.modalCard + xpath;
     await this.verifyElement("xpath", selector, checkType);
+  }
+
+  async checkArrowElement(externalLinkName: string, checkType: string) {
+    let link: any;
+    if (externalLinkName === "Layerswap") {
+      link = "https://www.layerswap.io/?sourceExchangeName=ZKSYNCERA_MAINNET";
+    } else if (externalLinkName === "Orbiter") {
+      link = "https://www.orbiter.finance/?source=zkSync%20Era";
+    } else {
+      return console.error("An incorrect link name has been provided");
+    }
+
+    const selector = `//*[@href='${link}']` + this.externalLinkArrow;
+    await this.verifyElement("xpath", selector, checkType);
+  }
+
+  async clickModalCardElement(selectorValue: string) {
+    let selector: string;
+    const regex = /\/\/\*/g;
+    const matchXpath = selectorValue.match(regex);
+
+    if (!matchXpath) {
+      selector = `//*[contains(text(),'${selectorValue}')]`;
+    } else {
+      selector = selectorValue;
+    }
+    await this.click(this.modalCard + selector);
+  }
+
+  async clickMenuElement(text: string) {
+    const selector = `//*[contains(text(),'${text}')]`;
+    await this.click(this.menuElement + selector);
+  }
+
+  async selectNetwork(networkName: string) {
+    await this.click(this.networkSwitcher);
+
+    if (
+      networkName === "zkSync Era Mainnet" ||
+      networkName === "zkSync Era Testnet" ||
+      networkName === "zkSync Lite Mainnet" ||
+      networkName === "zkSync Lite Goerli"
+    ) {
+      result = `//*[text()='${networkName}']`;
+    } else {
+      console.log("An incorrect value of the Network name");
+    }
+    await this.click(this.modalCard + result);
+  }
+
+  async getTypeOfTransactionsElement() {
+    const href = Routes.txBlockExplorer;
+    const transactionTypes = ["Receive", "Withdraw", "Send"];
+
+    for (let i = 0; i < transactionTypes.length; i++) {
+      const selectorValue = `'${href}' and '${transactionTypes[i]}'`;
+
+      result = await this.getElementByPartialHrefAndText(selectorValue);
+
+      if (result !== undefined) {
+        break;
+      }
+    }
+    return result;
+  }
+
+  async clickOnButton(buttonName: string) {
+    const selector = await this.getButton(buttonName);
+    await this.click(selector);
   }
 }

@@ -54,7 +54,14 @@ export class BasePage {
 
   async clickByText(text: string) {
     selector = `text=${text}`;
-    await this.world.page?.locator(selector).first().click();
+    await this.world.page?.waitForSelector(selector);
+    await this.world.page?.locator(selector).first().click(config.increasedTimeout);
+  }
+
+  async clickByPartialText(text: string) {
+    selector = `//*[contains(text(), '${text}')]`;
+    await this.world.page?.waitForSelector(selector);
+    await this.world.page?.locator(selector).first().click(config.increasedTimeout);
   }
 
   async pressButton(buttonName: string) {
@@ -88,7 +95,7 @@ export class BasePage {
   }
 
   async getElementByPartialHref(partialHref: string) {
-    element = await this.world.page?.locator(`//*[contains(@href,'${partialHref}')]`);
+    element = await this.world.page?.locator(`//*[contains(@href,'${partialHref}')]`).first();
     await element.scrollIntoViewIfNeeded();
     return await element;
   }
@@ -115,6 +122,29 @@ export class BasePage {
     return await element;
   }
 
+  async getElementByPartialHrefAndText(partialHrefAndText: string) {
+    const regex = /'([^']+)'/g; //extract href and text
+    const matches = partialHrefAndText.match(regex);
+    let href;
+    let text;
+
+    if (matches && matches.length >= 2) {
+      href = matches[0].replace(/'/g, "");
+      text = matches[matches.length - 1].replace(/'/g, "");
+    }
+
+    selector = `//*[contains(@href,'${href}')]//*[text()='${text}']`;
+    const elementVisibility = await this.world.page?.locator(selector).first().isVisible();
+
+    if (elementVisibility) {
+      element = await this.world.page?.locator(selector).first();
+      await element.scrollIntoViewIfNeeded(config.minimalTimeout);
+      return await element;
+    } else {
+      return undefined;
+    }
+  }
+
   async getElementById(id: string) {
     element = await this.world.page?.locator(`#${id}`);
     await element.scrollIntoViewIfNeeded();
@@ -135,6 +165,18 @@ export class BasePage {
 
   async getElementBySrc(src: string) {
     element = await this.world.page?.locator(`//*[@src='${src}']`).first();
+    await element.scrollIntoViewIfNeeded();
+    return await element;
+  }
+
+  async getElementByPartialSrc(src: string) {
+    element = await this.world.page?.locator(`//*[contains(@src, '${src}')]`).first();
+    await element.scrollIntoViewIfNeeded();
+    return await element;
+  }
+
+  async getElementByAriaLabel(ariaLabel: string) {
+    element = await this.world.page?.locator(`//*[@aria-label='${ariaLabel}']`).first();
     await element.scrollIntoViewIfNeeded();
     return await element;
   }
@@ -163,6 +205,12 @@ export class BasePage {
     return await element;
   }
 
+  async getElementByPartialString(text: string) {
+    element = await this.world.page?.locator(`//*[text()[contains(string(), '${text}')]]`).first();
+    await element.scrollIntoViewIfNeeded();
+    return await element;
+  }
+
   async returnElementByType(elementType: string, value: string) {
     if (elementType === "alt") {
       element = await this.getElementByAlt(value);
@@ -180,6 +228,8 @@ export class BasePage {
       element = await this.getElementByHref(value);
     } else if (elementType === "href and text") {
       element = await this.getElementByHrefAndText(value);
+    } else if (elementType === "partial href and text") {
+      element = await this.getElementByPartialHrefAndText(value);
     } else if (elementType === "id") {
       element = await this.getElementById(value);
     } else if (elementType === "testId") {
@@ -196,6 +246,12 @@ export class BasePage {
       element = await this.getElementByXpath(value);
     } else if (elementType === "src") {
       element = await this.getElementBySrc(value);
+    } else if (elementType === "partial src") {
+      element = await this.getElementByPartialSrc(value);
+    } else if (elementType === "aria-label") {
+      element = await this.getElementByAriaLabel(value);
+    } else if (elementType === "partial string") {
+      element = await this.getElementByPartialString(value);
     }
     return element;
   }
@@ -216,11 +272,12 @@ export class BasePage {
     let result;
 
     if (checkType === "visible") {
-      await expect(element).toBeVisible();
+      await expect(element).toBeVisible({ timeout: config.increasedTimeout.timeout });
     } else if (checkType === "invisible") {
       result = await helper.checkElementVisible(element);
       await expect(result).toBe(false);
     } else if (checkType === "clickable") {
+      await expect(element).toBeVisible({ timeout: config.increasedTimeout.timeout });
       result = await helper.checkElementClickable(element);
       await expect(result).toBe(true);
     } else if (checkType === "disabled") {

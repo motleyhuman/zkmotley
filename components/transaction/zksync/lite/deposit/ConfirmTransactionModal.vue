@@ -15,7 +15,7 @@
             :destination="destinations.ethereum"
             :tooltip="`Add funds from ${destinations.ethereum.label}`"
           />
-          <TokenBalance v-bind="transaction.token" as="div" :amount="transaction.amount" />
+          <TokenBalance v-bind="transaction.token" as="div" :amount="transaction.amount" amount-display="full" />
         </CommonCardWithLineButtons>
         <TransactionItemIcon :icon="ArrowDownIcon" />
         <CommonCardWithLineButtons>
@@ -76,7 +76,8 @@
       <CommonCardWithLineButtons v-if="transaction">
         <TransactionLineItem
           :icon="transactionReceiptIcon"
-          :transaction-url="`${l1BlockExplorerUrl}/tx/${ethTransactionHash}`"
+          :explorer-url="l1BlockExplorerUrl"
+          :transaction-hash="ethTransactionHash"
         >
           <template #top-left>Deposit</template>
           <template #top-right>
@@ -104,7 +105,12 @@
           processed on <span class="font-medium">{{ destinations.zkSyncLite.label }}</span
           >. You are free to close this page.
         </p>
-        <a :href="`${l1BlockExplorerUrl}/tx/${ethTransactionHash}`" target="_blank" class="alert-link">
+        <a
+          v-if="l1BlockExplorerUrl"
+          :href="`${l1BlockExplorerUrl}/tx/${ethTransactionHash}`"
+          target="_blank"
+          class="alert-link"
+        >
           Track status
           <ArrowUpRightIcon class="ml-1 h-3 w-3" />
         </a>

@@ -3,7 +3,7 @@ import { setTimeout } from "timers/promises";
 
 import { BasePage } from "./base.page";
 import { Extension } from "../data/data";
-import { Helper } from "../helpers/helper";
+import { depositTag, Helper } from "../helpers/helper";
 import { config, wallet } from "../support/config";
 
 import type { ICustomWorld } from "../support/custom-world";
@@ -118,7 +118,7 @@ export class MetamaskPage extends BasePage {
   }
 
   async getCodePhraseField(indx: number) {
-    element = `id=import-srp__srp-word-` + indx.toString();
+    element = `${this.byTestId}import-srp__srp-word-` + indx.toString();
     return await element;
   }
 
@@ -209,10 +209,15 @@ export class MetamaskPage extends BasePage {
   async switchNetwork() {
     const switchNetworkBtnSelector = "//div[@class='transaction-footer-row']//button";
     const switchNetworkBtnElement: any = await this.world.page?.locator(switchNetworkBtnSelector);
-    if (await switchNetworkBtnElement.isEnabled()) {
+    //check that switchNetworkBtnSelector is switcher network button
+    const buttonText = await switchNetworkBtnElement.innerText();
+    const result = buttonText.includes("Change wallet network");
+    if ((await switchNetworkBtnElement.isEnabled()) && result) {
       const popUpContext = await this.catchPopUpByClick(switchNetworkBtnSelector);
       await popUpContext?.setViewportSize(config.popUpWindowSize);
-      await popUpContext?.click(this.confirmBtn);
+      if (!depositTag) {
+        await popUpContext?.click(this.confirmBtn);
+      }
       await popUpContext?.click(this.confirmBtn);
     }
   }

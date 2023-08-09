@@ -11,20 +11,32 @@
       </CommonErrorBlock>
     </transition>
 
+    <div v-if="buttonStep === 'connect'" class="transaction-footer-row">
+      <CommonButton variant="primary-solid" :disabled="isConnectingWallet" @click="onboardStore.openModal">
+        Connect wallet
+      </CommonButton>
+    </div>
     <div v-if="buttonStep === 'network'" class="transaction-footer-row">
       <CommonButtonTopInfo>Incorrect network selected in your wallet</CommonButtonTopInfo>
-      <CommonButton
-        v-if="connectorName !== 'WalletConnect'"
-        type="submit"
-        :disabled="switchingNetworkInProgress"
-        variant="primary-solid"
-        @click="onboardStore.setCorrectNetwork"
-      >
-        Change wallet network to {{ selectedEthereumNetwork.name }}
-      </CommonButton>
-      <CommonButton v-else disabled variant="primary-solid">
-        Change network manually to {{ selectedEthereumNetwork.name }} in your {{ walletName }} wallet
-      </CommonButton>
+      <template v-if="l1Network">
+        <CommonButton
+          v-if="connectorName !== 'WalletConnect'"
+          type="submit"
+          :disabled="switchingNetworkInProgress"
+          variant="primary-solid"
+          @click="onboardStore.setCorrectNetwork"
+        >
+          Change wallet network to {{ l1Network.name }}
+        </CommonButton>
+        <CommonButton v-else disabled variant="primary-solid">
+          Change network manually to {{ l1Network.name }} in your {{ walletName }} wallet
+        </CommonButton>
+      </template>
+      <template v-else>
+        <CommonButton disabled variant="primary-solid">
+          L1 network is not available on {{ selectedNetwork.name }}
+        </CommonButton>
+      </template>
     </div>
     <div v-else-if="buttonStep === 'continue'" class="transaction-footer-row">
       <slot name="after-checks" />
@@ -45,12 +57,21 @@ import { TransitionAlertScaleInOutTransition } from "@/utils/transitions";
 
 const onboardStore = useOnboardStore();
 
-const { isCorrectNetworkSet, switchingNetworkInProgress, switchingNetworkError, connectorName, walletName } =
-  storeToRefs(onboardStore);
-const { selectedEthereumNetwork } = storeToRefs(useNetworkStore());
+const {
+  account,
+  isConnectingWallet,
+  isCorrectNetworkSet,
+  switchingNetworkInProgress,
+  switchingNetworkError,
+  connectorName,
+  walletName,
+} = storeToRefs(onboardStore);
+const { selectedNetwork, l1Network } = storeToRefs(useNetworkStore());
 
 const buttonStep = computed(() => {
-  if (!isCorrectNetworkSet.value) {
+  if (!account.value.address || isConnectingWallet.value) {
+    return "connect";
+  } else if (!isCorrectNetworkSet.value) {
     return "network";
   } else {
     return "continue";
@@ -67,7 +88,7 @@ const continueInWalletTipDisplayed = computed(() => {
 
 <style lang="scss" scoped>
 .transaction-footer {
-  @apply sticky bottom-0 z-[2] mt-auto flex flex-col items-center bg-gray bg-opacity-60 pb-2 pt-4 backdrop-blur-sm dark:bg-neutral-950;
+  @apply sticky bottom-0 z-10 mt-auto flex flex-col items-center bg-gray bg-opacity-60 pb-2 pt-4 backdrop-blur-sm dark:bg-neutral-950;
 
   .transaction-footer-row {
     @apply flex w-full flex-col items-center;

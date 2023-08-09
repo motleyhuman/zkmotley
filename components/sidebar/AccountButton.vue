@@ -1,5 +1,5 @@
 <template>
-  <Menu as="div" class="account-button-container">
+  <Menu as="div" class="account-button-container" data-testid="account-dropdown">
     <ModalNetworkChange v-model:opened="networkChangeModalOpened" />
     <ModalViewOnExplorer v-model:opened="viewOnExplorerModalOpened" />
 
@@ -32,7 +32,7 @@
             </button>
           </MenuItem>
           <MenuItem v-slot="{ active }" as="template">
-            <button class="account-menu-item" :class="{ active }" @click.prevent="switchColorMode">
+            <button class="account-menu-item" :class="{ active }" @click.prevent="() => switchColorMode()">
               <div class="account-menu-item-icon overflow-hidden p-2">
                 <transition v-bind="TransitionPrimaryButtonText" mode="out-in">
                   <MoonIcon

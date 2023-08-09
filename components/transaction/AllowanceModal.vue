@@ -17,7 +17,7 @@
         </CommonCardWithLineButtons>
         <TransactionItemIcon :icon="LockOpenIcon" />
         <CommonCardWithLineButtons>
-          <TokenBalance v-bind="transaction.token" as="div" :amount="transaction.amount" />
+          <TokenBalance v-bind="transaction.token" as="div" :amount="transaction.amount" amount-display="full" />
           <DestinationItem v-bind="destination" as="div" description="Approving allowance for deposit" />
         </CommonCardWithLineButtons>
       </template>
@@ -75,7 +75,11 @@
         {{ transactionCommitted ? "Allowance approved" : "Approving allowance" }}
       </div>
       <CommonCardWithLineButtons v-if="transaction">
-        <TransactionLineItem :icon="LockOpenIcon" :transaction-url="`${l1BlockExplorerUrl}/tx/${transactionHash}`">
+        <TransactionLineItem
+          :icon="LockOpenIcon"
+          :explorer-url="l1BlockExplorerUrl"
+          :transaction-hash="transactionHash"
+        >
           <template #top-left>Allowance</template>
           <template #top-right>
             <TokenAmount :token="transaction.token" :amount="transaction.amount" />
@@ -91,7 +95,12 @@
           <span class="font-medium">{{ destinations.ethereum.label }}</span
           >.
         </p>
-        <a :href="`${l1BlockExplorerUrl}/tx/${transactionHash}`" target="_blank" class="alert-link">
+        <a
+          v-if="l1BlockExplorerUrl"
+          :href="`${l1BlockExplorerUrl}/tx/${transactionHash}`"
+          target="_blank"
+          class="alert-link"
+        >
           Track status
           <ArrowUpRightIcon class="ml-1 h-3 w-3" />
         </a>
@@ -138,7 +147,6 @@ import { formatError } from "@/utils/formatters";
 import { TransitionAlertScaleInOutTransition, TransitionPrimaryButtonText } from "@/utils/transitions";
 
 export type ConfirmationModalTransaction = {
-  to: string;
   token: Token;
   amount: BigNumberish;
 };
