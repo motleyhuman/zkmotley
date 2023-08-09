@@ -16,7 +16,8 @@ export type L2Network = {
   // If set to true, the network will not be shown in the network selector
   hidden?: boolean;
 };
-export const l1Networks = {
+export type L1Network = Chain;
+export const l1Networks: Record<string, L1Network> = {
   mainnet: {
     ...mainnet,
     name: "Mainnet",
@@ -28,11 +29,13 @@ export const l1Networks = {
   },
   sepolia: {
     ...sepolia,
+    rpcUrls: {
+      public: { http: ["https://sepolia.gateway.tenderly.co"] },
+      default: { http: ["https://sepolia.gateway.tenderly.co"] },
+    },
     name: "Sepolia Testnet",
   },
 } as const;
-export type L1Network = Chain;
-
 export type EraNetwork = L2Network & {
   id: number;
   rpcUrl: string;

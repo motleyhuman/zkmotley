@@ -71,7 +71,7 @@ export const useEraEthereumBalanceStore = defineStore("eraEthereumBalances", () 
     async () => {
       if (!l1Network.value) throw new Error(`L1 network is not available on ${selectedNetwork.value.name}`);
 
-      if (["mainnet", "goerli", "sepolia"].includes(l1Network.value?.network)) {
+      if (["mainnet", "goerli"].includes(l1Network.value?.network)) {
         return getBalancesFromApi();
       } else {
         return getBalancesFromRPC();
