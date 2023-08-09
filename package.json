@@ -104,7 +104,7 @@
     "vue3-lottie": "^2.5.0",
     "web3-avatar-vue": "^1.0.0",
     "zksync": "^0.13.1",
-    "zksync-web3": "^0.15.2"
+    "zksync-web3": "^0.15.4"
   },
   "overrides": {
     "vue": "latest"
