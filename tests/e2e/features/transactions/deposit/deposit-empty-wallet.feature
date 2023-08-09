@@ -1,4 +1,4 @@
-@deposit @regression @transactions @noblockchain @emptyWallet
+@deposit @regression @transactions @emptyWallet
 Feature: Deposit
 
   Background:
