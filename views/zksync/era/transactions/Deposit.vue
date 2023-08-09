@@ -273,7 +273,14 @@ const {
 } = useAllowance(
   computed(() => account.value.address),
   computed(() => selectedToken.value?.l1Address),
-  async () => (await eraProviderStore.requestProvider().getDefaultBridgeAddresses()).erc20L1,
+  async () => {
+    const bridgeAddresses = await eraProviderStore.requestProvider().getDefaultBridgeAddresses();
+    if (selectedToken.value?.l1Address === "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9") {
+      return bridgeAddresses.wethL1;
+    } else {
+      return bridgeAddresses.erc20L1;
+    }
+  },
   onboardStore.getWallet,
   onboardStore.getPublicClient
 );

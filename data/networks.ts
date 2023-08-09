@@ -137,7 +137,7 @@ export const eraNetworks: EraNetwork[] = [
     shortName: "Era Stage",
     rpcUrl: "https://z2-dev-api.zksync.dev",
     blockExplorerUrl: "https://goerli-beta.staging-scan-v2.zksync.dev",
-    blockExplorerApi: "https://block-explorer-api.stage.zksync.dev",
+    // blockExplorerApi: "https://block-explorer-api.stage.zksync.dev",
     faucetUrl: "https://stage2-faucet.zksync.dev/ask_money",
     getTokens: () => getTokensByNetworkId(270),
     l1Network: l1Networks.sepolia,
