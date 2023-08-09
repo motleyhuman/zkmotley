@@ -109,6 +109,16 @@ When("I insert {string} as amount", config.stepTimeout, async function (this: IC
   await mainPage.insertAmount(amount);
 });
 
+When("I save Max Balance Error Value", config.stepTimeout, async function (this: ICustomWorld) {
+  mainPage = new MainPage(this);
+  await mainPage.saveMaxBalanceErrorValue();
+});
+
+When("Max amount is set to the input field", config.stepTimeout, async function (this: ICustomWorld) {
+  mainPage = new MainPage(this);
+  await mainPage.maxAmountIsSet();
+});
+
 When("I confirm the network switching", config.stepTimeout, async function (this: ICustomWorld) {
   metamaskPage = new MetamaskPage(this);
   await metamaskPage.switchNetwork();

@@ -79,6 +79,11 @@ export class BasePage {
     return await element;
   }
 
+  async getButtonByClass(text: string) {
+    element = await this.world.page?.locator(`//*[@class="${text}"]//button`).first();
+    return await element;
+  }
+
   async getElementByPartialClass(text: string) {
     element = await this.world.page?.locator(`//*[contains(@class, "${text}")]`).first();
     return await element;
@@ -252,6 +257,8 @@ export class BasePage {
       element = await this.getElementByAriaLabel(value);
     } else if (elementType === "partial string") {
       element = await this.getElementByPartialString(value);
+    } else if (elementType === "button by class") {
+      element = await this.getButtonByClass(value);
     }
     return element;
   }

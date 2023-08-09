@@ -7,13 +7,12 @@ Feature: Deposit
   @id1418
   Scenario: Make a deposit in ETH
     Given I am on the Main page
-    Given I go to "Deposit" transaction section
+    When I go to "Deposit" transaction section
     When I click by "text" with "Your account" value
-    Then Element with "id" "amount-input" should be ""
-    Then Element with "testId" "fee-amount" should be "visible"
-    Then Fee should have "$" value
-    Then Fee should have "ETH" value
+    When Element with "id" "amount-input" should be ""
+    When Element with "testId" "fee-amount" should be "visible"
+    When Fee should have "$" value
+    When Fee should have "ETH" value
     When I choose "ETH" as token and insert "0.0000000001" as amount
     When I "confirm" transaction after clicking "Add funds to zkSync Era Testnet" button
     Then Message "Transaction submitted" should be visible
-
