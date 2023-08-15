@@ -40,6 +40,10 @@ export class MetamaskPage extends BasePage {
     return "//p[contains(text(), 'Fee has changed')]";
   }
 
+  get feeChangerAlert() {
+    return "//p[contains(text(), 'Fee has changed')]";
+  }
+
   get saveFeeBtn() {
     return "//*[@class='popover-container']//button";
   }
@@ -195,7 +199,7 @@ export class MetamaskPage extends BasePage {
     const [popUp] = await Promise.all([
       this.world.context?.waitForEvent("page"),
       await helper.checkElementVisible(element),
-      await await this.world.page?.locator(element).first().click(),
+      await this.world.page?.locator(element).first().click(),
       await setTimeout(config.defaultTimeout.timeout),
       await this.isFeeAlert(element),
     ]);
