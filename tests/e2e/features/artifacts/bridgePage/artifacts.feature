@@ -129,3 +129,14 @@ Feature: Withdraw
     Then Element with "partial class and text" "0" should be "visible"
     Then Element with "xpath" "//*[contains(@class,'solid') and text()=' Connect wallet ']" should be "visible"
     Then Element with "xpath" "//*[contains(@class,'solid') and text()=' Connect wallet ']" should be "clickable"
+
+  @id1612
+  Scenario: Check the editing recipient address in Bridge (Withdraw)
+    Given I go to page "/bridge?network=era-goerli"
+    When I click by text "Withdraw"
+    When I click by "text" with "Your Ethereum Goerli Testnet account" value
+    Then Element with "text" "Bridge to" should be "visible"
+    When I fill the "Address or ENS or contact name" input field on the Contacts page with "0x9CC8DC9c4d73fC5647A4eE78A2e8EC49D447AeB8" text
+    When I click by text "0x9CC8...eB8"
+    Then Element with "text" "Ethereum Goerli Testnet address" should be "visible"
+    Then Element with "text" "0x9CC8...eB8" should be "visible"
