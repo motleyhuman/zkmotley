@@ -31,5 +31,4 @@ Feature: Faucet
     Then Element with "text" "PoW faucet" should be "visible"
     Then Element with "text" "PoW faucet" should be "clickable"
 
-
     

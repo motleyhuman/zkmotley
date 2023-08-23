@@ -85,6 +85,13 @@ When(
   }
 );
 
+When("Circle timer for fee updating should be visible", config.stepTimeout, async function (this: ICustomWorld) {
+  mainPage = new MainPage(this);
+  element = mainPage.circleTimerElement;
+  result = await this.page?.locator(element);
+  await expect(result).toBeVisible();
+});
+
 When(
   "I {string} transaction after clicking {string} button",
   config.stepTimeout,
@@ -170,18 +177,10 @@ Then("Clipboard is not empty", async function (this: ICustomWorld) {
 });
 
 Given(
-  "I fill the {string} input field by {string}",
-  async function (this: ICustomWorld, inputField: string, text: string) {
-    mainPage = new MainPage(this);
-    await mainPage.fillText(inputField, text);
-  }
-);
-
-Given(
-  "I fill the {string} input field on the Contacts page with {string} text",
-  async function (this: ICustomWorld, inputField: string, text: string) {
-    contactsPage = new ContactsPage(this);
-    await contactsPage.fillContactFields(inputField, text);
+  "I fill the input field contains {string} type {string} value with {string} text",
+  async function (this: ICustomWorld, selectorType: string, selectorValue: string, text: string) {
+    basePage = new BasePage(this);
+    await basePage.fillSpecificField(selectorType, selectorValue, text);
   }
 );
 
