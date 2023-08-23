@@ -156,19 +156,18 @@ Feature: Artifacts - UI
     When I "confirm" transaction after clicking "Send to zkSync Era Testnet" button
     #Transaction submitted pop up - id1537
     Then Message "Transaction submitted" should be visible
-    Then Element with "partial class" "progress-plane-animation" should be "visible"
+    Then Submitted transaction animation should be visible
     Then Element with "text" " Track status " should be "visible"
     #Transaction completed pop up - id1404
     Then Message "Transaction completed" should be visible
-    #Success mark
-    Then Element with "partial class" "lottie-animation-container" should be "visible"
+    Then The Green success mark should be visible
     Then Element with "text" "Send" should be "visible"
     #Time of tx
     Then Element with "class" "button-line-body-info-underline" should be "visible"
     Then Element with "text" "0.0000000001" should be "visible"
     Then Modal card element with the "//*[text()='ETH']" xpath should be "visible"
     #Token icon
-    Then Modal card element with the "//*[contains(@src, 'eth.svg?alt=media&token=1985e3d8-3aa7-4d04-8839-565d4c341615')]" xpath should be "visible"
+    Then Modal card element with the "//*[contains(@src, 'eth.svg')]" xpath should be "visible"
     Then Modal card element with the "//*[text()='<$0.01']" xpath should be "visible"
     Then Arrow element for "Transfer" external link should be "visible"
     Then Arrow element for "Transfer" external link should be "clickable"

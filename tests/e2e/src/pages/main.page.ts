@@ -33,6 +33,18 @@ export class MainPage extends BasePage {
     return '//*[contains(@class, "radial-progress")]';
   }
 
+  get submittedTransactionAnimation() {
+    return '//*[contains(@class, "progress-plane-animation")]';
+  }
+
+  get greenSuccessMark() {
+    return '//*[contains(@class, "lottie-animation-container")]';
+  }
+
+  get faucetTokensAnimation() {
+    return '//*[contains(@class, "idle-faucet-animation")]';
+  }
+
   get menuElement() {
     return "//*[@class='menu-options']";
   }
