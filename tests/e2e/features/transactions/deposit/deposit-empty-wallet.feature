@@ -10,7 +10,7 @@ Feature: Deposit
     Given I am on the Main page
     When I go to "Deposit" transaction section
     When I click by "text" with "Your account" value
-    When I choose "ETH" as token and insert "" as amount
+    When I choose "ETH" as token and insert "0" as amount
     When Element with "text" " Insufficient " should be "visible"
     Then Message "ETH" should be visible
     Then Message " balance on Ethereum Goerli Testnet to cover the fee. We recommend having at least " should be visible
@@ -22,7 +22,7 @@ Feature: Deposit
   Scenario: Deposit - Receive - [Transaction] insufficient funds 0 balance
     Given I go to page "/transaction/zksync/era/deposit/?network=era-mainnet"
     When I click by "text" with "Your account" value
-    When I choose "ETH" as token and insert "" as amount
+    When I choose "ETH" as token and insert "0" as amount
     When Element with "text" " Insufficient " should be "visible"
     Then Message "ETH" should be visible
     Then Message " balance on Ethereum Mainnet to cover the fee. We recommend having at least " should be visible

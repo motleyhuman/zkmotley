@@ -16,7 +16,7 @@ Feature: Deposit
     When I confirm the network switching
     When Element with "text" " Continue " should be "disabled" 
     When I save Max Balance Error Value 
-    When I click by "button by class" with "amount-input-error" value
+    When I Click on the underlined Max amount number
     Then Max amount is set to the input field
     Then Element with "partial class" "has-error" should be "invisible"  
     

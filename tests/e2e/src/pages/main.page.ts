@@ -86,6 +86,10 @@ export class MainPage extends BasePage {
     return `${this.byTestId}network-switcher`;
   }
 
+  get amountInputErrorButton() {
+    return `//*[@class="amount-input-error"]//button`;
+  }
+
   async getButton(buttonName: string) {
     return `//*[@type='button' and contains(., '${buttonName}')] | //button[text()[contains(string(), '${buttonName}')]]`;
   }
@@ -260,12 +264,13 @@ export class MainPage extends BasePage {
   }
 
   async saveMaxBalanceErrorValue() {
-    const basePage = new BasePage(this.world);
-    maxBalanceErrorValue = (await basePage.getButtonByClass("amount-input-error")).textContent();
+    const helper = new Helper(this.world);
+    const selector = this.amountInputErrorButton;
+    maxBalanceErrorValue = await helper.getTextFromLocator(selector);
   }
 
   async maxAmountIsSet() {
     const basePage = new BasePage(this.world);
-    basePage.verifyElement("class", "amount-input-field", maxBalanceErrorValue);
+    basePage.verifyContent("class", "amount-input-field", maxBalanceErrorValue, "value");
   }
 }

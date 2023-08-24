@@ -20,11 +20,6 @@ export class BasePage {
     return "data-testid=";
   }
 
-  async getButtonByClass(text: string) {
-    element = await this.world.page?.locator(`//*[@class="${text}"]//button`).first();
-    return await element;
-  }
-
   async getInputSelector(selector: string) {
     return `//input[@${selector}]`;
   }
@@ -268,8 +263,6 @@ export class BasePage {
       element = await this.getElementByAriaLabel(value);
     } else if (elementType === "partial string") {
       element = await this.getElementByPartialString(value);
-    } else if (elementType === "button by class") {
-      element = await this.getButtonByClass(value);
     }
     return element;
   }
@@ -285,6 +278,8 @@ export class BasePage {
   }
 
   async verifyContent(elementType: string, elementValue: string, content: string, contentType: string) {
+    // elementType - f.e. class/text, elementValue - value of class/text
+    // content - what we are going to verify, contentType - value or text
     element = await this.returnElementByType(elementType, elementValue);
     if (contentType === "value") {
       await expect(element).toHaveValue(content);
@@ -313,8 +308,6 @@ export class BasePage {
     } else if (checkType === "enabled") {
       result = await element.isDisabled();
       await expect(result).toBe(false);
-    } else if (elementType === "id") {
-      await expect(element).toHaveValue(checkType);
     }
   }
 }

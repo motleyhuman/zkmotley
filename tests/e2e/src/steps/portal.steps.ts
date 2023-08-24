@@ -382,6 +382,11 @@ When("I save Max Balance Error Value", config.stepTimeout, async function (this:
   await mainPage.saveMaxBalanceErrorValue();
 });
 
+When("I Click on the underlined Max amount number", config.stepTimeout, async function (this: ICustomWorld) {
+  mainPage = new MainPage(this);
+  await mainPage.click(mainPage.amountInputErrorButton);
+});
+
 When("Max amount is set to the input field", config.stepTimeout, async function (this: ICustomWorld) {
   mainPage = new MainPage(this);
   await mainPage.maxAmountIsSet();
