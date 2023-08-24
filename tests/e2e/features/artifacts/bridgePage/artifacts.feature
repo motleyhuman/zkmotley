@@ -223,3 +223,16 @@ Feature: Withdraw
       When I click by text "0x52B6...f46"
       Then Element with "text" "zkSync Era Testnet address" should be "visible"
       Then Element with "text" "0x52B6...f46" should be "visible"
+
+      @id1694
+      Scenario: Check Recent withdrawals records Bridge - Withdraw
+        #Steps to perform Withdraw and check it afterwards
+        Given I go to page "/bridge?network=era-goerli"
+        When I click by text "Withdraw"
+        When I choose "ETH" as token and insert "0.0000000001" as amount
+        When I "confirm" transaction after clicking "Add funds to zkSync Era Testnet" button
+        Then Message "Transaction submitted" should be visible
+        When I click by "text" with " Make another transaction " value
+        # Recent withdrawals section contains - not expanded list
+        Then Element with "text" "Bridge to" should be "visible"
+        
