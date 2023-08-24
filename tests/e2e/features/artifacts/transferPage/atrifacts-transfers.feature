@@ -148,7 +148,7 @@ Feature: Artifacts - UI
     Then Element with "text" "0x1ab721...184" should be "visible"
     Then Element with "partial src" "zz.png" should be "visible"
 
-  @id1364 @Transfer
+  @id1364 @id1343 @Transfer
   Scenario: Check artifacts on the Send to page - Transfer
     Given I am on the Main page
     When I go to page "/transaction/zksync/era/send/?address=0x2CF4F78917A16C9584AeB5d4c5bD2713d724C75d"
@@ -202,4 +202,30 @@ Feature: Artifacts - UI
     Then Modal card element with the "//*[contains(@class, '-my-0.5')]//button[contains(., 'ETH')]" xpath should be "visible"
     Then Element with "text" "Send to zkSync Era Testnet" should be "visible"
     Then Element with "text" "Send to zkSync Era Testnet" should be "clickable"
-    
+
+  @id1286 @Transfer
+  Scenario: Check max button functionality
+    When I go to page "/transaction/zksync/era/send/?address=0x2CF4F78917A16C9584AeB5d4c5bD2713d724C75d"
+    Then I confirm the network switching
+      #Max button is displayed
+    Then Element with "partial text" "Max" should be "visible"
+    Then Element with "partial text" "Max" should be "clickable"
+      #Verify "Max" button is highlighted after clicking on it
+    Then I click by "text" with " Max " value
+    Then Element with "partial class" "is-max" should be "visible"
+      # Verify max amount set to the field for Withdraw
+    Then Element with "title" "Max amount is set" should be "visible"
+      #Continue button is clickable
+    Then Element with "text" " Continue " should be "clickable"
+
+  @id1538 @Transfer
+  Scenario: Check Transaction submitted window redirection links
+    When I go to page "/transaction/zksync/era/send/?address=0x2CF4F78917A16C9584AeB5d4c5bD2713d724C75d"
+    # Fill all the required fields for tx and to see Submitted window
+    Then I choose "ETH" as token and insert "0.00000001" as amount
+    When I "confirm" transaction after clicking "Send to zkSync Era Testnet" button
+    #Links check
+    Then Element with "href" "https://goerli.explorer.zksync.io/address/0x2CF4F78917A16C9584AeB5d4c5bD2713d724C75d" should be "clickable"
+    Then Element with "partial href" "https://goerli.explorer.zksync.io/tx/" should be "clickable"
+    Then Element with "partial href" "/transaction/zksync/era" should be "clickable"
+    Then Element with "href" "/" should be "clickable"
