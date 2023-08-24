@@ -376,3 +376,13 @@ Given("I reset allowance", config.stepExtraTimeout, async function (this: ICusto
   await revokePage.revokeAllowance();
   await revokePage.logout();
 });
+
+When("I save Max Balance Error Value", config.stepTimeout, async function (this: ICustomWorld) {
+  mainPage = new MainPage(this);
+  await mainPage.saveMaxBalanceErrorValue();
+});
+
+When("Max amount is set to the input field", config.stepTimeout, async function (this: ICustomWorld) {
+  mainPage = new MainPage(this);
+  await mainPage.maxAmountIsSet();
+});

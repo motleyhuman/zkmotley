@@ -237,7 +237,7 @@ export class Helper {
     if (!incognitoTag && !transactionsTag && !emptyWalletTag) {
       await metamaskPage.authorizeInMetamaskExtension(wallet_1, wallet_password);
       await basePage.goTo(targetUrl);
-    } else if (transactionsTag && !incognitoTag) {
+    } else if (transactionsTag && !incognitoTag && !emptyWalletTag) {
       const isLogout = await metamaskPage.isLogout();
       if (isLogout === undefined && depositTag) {
         // await this.thresholdBalanceIsOk();
