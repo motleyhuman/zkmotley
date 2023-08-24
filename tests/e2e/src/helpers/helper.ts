@@ -18,6 +18,7 @@ const iv = Buffer.from(wallet.salt, "hex"); //crypto.randomBytes(16);
 
 let result: any;
 export let depositTag: boolean;
+export let resetAllowanceTag: boolean;
 let withdrawTag: boolean;
 let transferTag: boolean;
 let authorizedTag: boolean;
@@ -73,6 +74,7 @@ export class Helper {
     unauthorizedTag = filteredTag("@unauthorized");
     emptyWalletTag = filteredTag("@emptyWallet");
     noBlockChain = filteredTag("@noBlockChain");
+    resetAllowanceTag = filteredTag("@resetAllowance");
   }
 
   async checkElementVisible(element: string, waitTime = 10000): Promise<boolean> {

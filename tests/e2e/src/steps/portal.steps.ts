@@ -80,10 +80,10 @@ When(
 
 When(
   "Message {string} should be visible",
-  { timeout: 181 * 1000 },
+  config.stepTimeout,
   async function (this: ICustomWorld, successMessage: string) {
     result = await this.page?.locator(`//*[text()="${successMessage}"]`).first();
-    await expect(result).toBeVisible({ timeout: 180 * 1000 });
+    await expect(result).toBeVisible(config.stepTimeout);
   }
 );
 
@@ -372,8 +372,6 @@ Then(
 
 Given("I reset allowance", config.stepExtraTimeout, async function (this: ICustomWorld) {
   revokePage = new RevokePage(this);
-  metamaskPage = new MetamaskPage(this);
-  await metamaskPage.extractCurrentWalletAddress();
   await revokePage.login();
   await revokePage.revokeAllowance();
   await revokePage.logout();
