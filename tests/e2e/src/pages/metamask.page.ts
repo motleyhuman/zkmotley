@@ -200,7 +200,7 @@ export class MetamaskPage extends BasePage {
     }
     logoutTrigger = false;
     if (resetAllowanceTag) {
-      this.extractCurrentWalletAddress();
+      await this.extractCurrentWalletAddress();
     }
   }
 
