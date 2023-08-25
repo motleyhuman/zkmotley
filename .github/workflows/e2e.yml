@@ -71,7 +71,8 @@ jobs:
                 "@transactions and @deposit and @resetAllowance",
                 "@transactions and @withdraw",
                 "@various and @emptyWallet",
-                "@actions and @contacts"
+                "@actions and @contacts",
+                "@redirection and @deposit"
         ]
 
     name: '${{ matrix.tags }}'

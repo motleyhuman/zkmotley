@@ -11,7 +11,7 @@ Feature: Deposit
     Given I go to "Deposit" transaction section
     When I click by "text" with "Your account" value
     Then I confirm the network switching
-    When I choose "DAI" as token and insert "0.0000000001" as amount
+    When I choose "DAI" as token and insert "0.00002" as amount
     Then Element with "text" " Continue " should be "clickable"
     When I click by text " Continue "
     When I click by the "//*[text()=' Learn more ']" text element on the Modal card
