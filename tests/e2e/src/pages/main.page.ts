@@ -207,6 +207,8 @@ export class MainPage extends BasePage {
       link = "https://www.orbiter.finance/?source=zkSync%20Era";
     } else if (externalLinkName === "Transfer") {
       link = "https://goerli.explorer.zksync.io/tx";
+    } else if (externalLinkName === "Deposit") {
+      link = "https://goerli.etherscan.io/tx/";
     } else {
       return console.error("An incorrect link name has been provided");
     }
